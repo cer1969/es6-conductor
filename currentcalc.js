@@ -1,8 +1,7 @@
 // CRISTIAN ECHEVERRÍA RABÍ
+// javascript es6
 
-//import { check } from "./checker";
-import {CF_CLASSIC, CF_IEEE, TA_MIN, TA_MAX, TC_MIN, TC_MAX} from "./constants"
-//import * as k from "./constants";
+import {CF_CLASSIC, CF_IEEE, TA_MIN, TA_MAX, TC_MIN, TC_MAX} from "./constants";
 
 //--------------------------------------------------------------------------------------------------
 
@@ -23,58 +22,50 @@ export class CurrentCalc {
 	 * formula     : Define formula for current calculation = CF_IEEE
 	 * deltaTemp   : Temperature difference to determine equality [°C] = 0.01
 	 */
-
 	constructor(conductor) {
-		/* 
-		 * conductor : Conductor instance.
+		/* conductor : Conductor instance.
 		 * Valid values are required for r25, diameter and category.alpha
 		 */
-		check(conductor.r25).gt(0);
-		check(conductor.diameter).gt(0);
-		check(conductor.category.alpha).gt(0).lt(1);
+		if (conductor._diameter <= 0) {throw new RangeError("diameter <= 0");}
+		if (conductor._r25 <= 0) {throw new RangeError("r25 <= 0");}
+		if (conductor._category._alpha <= 0) {throw new RangeError("category.alpha <= 0");}
+		if (conductor._category._alpha >= 1) {throw new RangeError("category.alpha >= 1");}
 
-		this._r25 = conductor.r25
-		this._diameter = conductor.diameter
-		this._alpha = conductor.category.alpha
+		this._conductor = conductor;
+		this._diameter = conductor._diameter;
+		this._r25 = conductor._r25;
+		this._alpha = conductor._category._alpha;
+		
 		this._altitude = 300.0;
 		this._airVelocity = 2.0;
 		this._sunEffect = 1.0;
 		this._emissivity = 0.5;
-		this._formula = k.CF_IEEE;
+		this._formula = CF_IEEE;
 		this._deltaTemp = 0.01;
 	}
 
 	//--------------------------------------------------------------------------------------------------
 	// Public methods
 
-	/**
-	 * Returns resistance as function of conductor temperature
-	 * 
-	 * @param {number} tc - Conductor temperature [°C]
-	 * @returns {number} Resistance [Ohm/km]
-	 * @throws {RangeError} if not (TC_MIN <= tc <= TC_MAX)
-	 * 
-	 * @memberOf CurrentCalc
-	 */
 	getResistance(tc) {
-		check(tc).ge(k.TC_MIN).le(k.TC_MAX);
+		/* Returns resistance [Ohm/km]
+		 * tc : Conductor temperature [°C]
+		 */
+		if (tc < TC_MIN) {throw new RangeError("tc < TC_MIN");}
+		if (tc > TC_MAX) {throw new RangeError("tc > TC_MAX");}
 		return this._r25 * (1 + this._alpha * (tc - 25));
 	}
 
-	/**
-	 * Returns current as function of ambient and conductor temperatures
-	 * 
-	 * @param {number} ta - Ambient temperature [°C]
-	 * @param {number} tc - Conductor temperature [°C]
-	 * @returns {number} Current [ampere]
-	 * @throws {RangeError} if not (TA_MIN <= ta <= TA_MAX)
-	 * @throws {RangeError} if not (TC_MIN <= tc <= TC_MAX)
-	 * 
-	 * @memberOf CurrentCalc
-	 */
 	getCurrent(ta, tc) {
-		check(ta).ge(k.TA_MIN).le(k.TA_MAX);
-		check(tc).ge(k.TC_MIN).le(k.TC_MAX);
+		/* Returns current [ampere]
+		 * ta : Ambient temperature [°C]
+		 * tc : Conductor temperature [°C]
+		 */
+		if (ta < TA_MIN) {throw new RangeError("ta < TA_MIN");}
+		if (ta > TA_MAX) {throw new RangeError("ta > TA_MAX");}
+		if (tc < TC_MIN) {throw new RangeError("tc < TC_MIN");}
+		if (tc > TC_MAX) {throw new RangeError("tc > TC_MAX");}
+		
 		if (ta >= tc) {
 			return 0.0;
 		}
@@ -92,7 +83,7 @@ export class CurrentCalc {
 			let factor = D * Rf * V / Uf;
 			let Qc1 = 0.1695 * Kf * (tc - ta) * Math.pow(factor, 0.6);
 			let Qc2 = Kf * (tc - ta) * (1.01 + 0.371 * Math.pow(factor, 0.52));
-			if (this._formula == k.CF_IEEE) {
+			if (this._formula == CF_IEEE) {
 				Qc = Math.max(Qc, Qc1, Qc2);
 			}
 			else {
@@ -117,20 +108,19 @@ export class CurrentCalc {
 	}
 
 	getTc(ta, ic) {
-		/*
-		Returns conductor temperature [ampere]
-		ta : Ambient temperature [°C]
-		ic : Current [ampere]
+		/* Returns conductor temperature [ampere]
+		 * ta : Ambient temperature [°C]
+		 * ic : Current [ampere]
 		*/
-		check(ta).ge(k.TA_MIN).le(k.TA_MAX);
-		let _Imin = 0;
-		let _Imax = this.getCurrent(ta, k.TC_MAX);
-		check(ic).ge(_Imin).le(_Imax); // Ensure ta <= Tc <= TC_MAX
+		if (ta < TA_MIN) {throw new RangeError("ta < TA_MIN");}
+		if (ta > TA_MAX) {throw new RangeError("ta > TA_MAX");}
+		if (ic < 0) {throw new RangeError("ic < 0");}
+		if (ic > this.getCurrent(ta, TC_MAX)) {throw new RangeError("ic > Imax (TC_MAX)");}
+
 		let Tmin = ta;
-		let Tmax = k.TC_MAX;
-		let cuenta = 0;
-		let Tmed;
-		let Imed;
+		let Tmax = TC_MAX;
+		//let cuenta = 0;
+		let Tmed, Imed;
 		while ((Tmax - Tmin) > this._deltaTemp) {
 			Tmed = 0.5 * (Tmin + Tmax);
 			Imed = this.getCurrent(ta, Tmed);
@@ -140,32 +130,32 @@ export class CurrentCalc {
 			else {
 				Tmin = Tmed;
 			}
-			cuenta = cuenta + 1;
-			if (cuenta > k.ITER_MAX) {
-				let err_msg = `getTc(): N° iterations > ${k.ITER_MAX}`;
-				throw new RangeError(err_msg);
-			}
+			//cuenta = cuenta + 1;
+			//if (cuenta > k.ITER_MAX) {
+			//	let err_msg = `getTc(): N° iterations > ${k.ITER_MAX}`;
+			//	throw new RangeError(err_msg);
+			//}
 		}
 		return Tmed;
 	}
+
 	getTa(tc, ic) {
-		/*
-		Returns ambient temperature [ampere]
-		tc : Conductor temperature [°C]
-		ic : Current [ampere]
+		/* Returns ambient temperature [ampere]
+		 * tc : Conductor temperature [°C]
+		 * ic : Current [ampere]
 		*/
-		check(tc).ge(k.TC_MIN).le(k.TC_MAX);
-		let _Imin = this.getCurrent(k.TA_MAX, tc);
-		let _Imax = this.getCurrent(k.TA_MIN, tc);
-		check(ic).ge(_Imin).le(_Imax); // Ensure TA_MIN =< Ta =< TA_MAX
-		let Tmin = k.TA_MIN;
-		let Tmax = Math.min(k.TA_MAX, tc);
+		if (tc < TC_MIN) {throw new RangeError("tc < TC_MIN");}
+		if (tc > TC_MAX) {throw new RangeError("tc > TC_MAX");}
+		if (ic < this.getCurrent(TA_MAX, tc)) {throw new RangeError("ic < Imin (TA_MAX)");}
+		if (ic > this.getCurrent(TA_MIN, tc)) {throw new RangeError("ic > Imax (TA_MIN)");}
+
+		let Tmin = TA_MIN;
+		let Tmax = Math.min(TA_MAX, tc);
 		if (Tmin >= Tmax) {
 			return tc;
 		}
-		let cuenta = 0;
-		let Tmed;
-		let Imed;
+		//let cuenta = 0;
+		let Tmed, Imed;
 		while ((Tmax - Tmin) > this._deltaTemp) {
 			Tmed = 0.5 * (Tmin + Tmax);
 			Imed = this.getCurrent(Tmed, tc);
@@ -175,55 +165,64 @@ export class CurrentCalc {
 			else {
 				Tmax = Tmed;
 			}
-			cuenta = cuenta + 1;
-			if (cuenta > k.ITER_MAX) {
-				let err_msg = `getTa(): N° iterations > ${k.ITER_MAX}`;
-				throw new RangeError(err_msg);
-			}
+			//cuenta = cuenta + 1;
+			//if (cuenta > k.ITER_MAX) {
+			//	let err_msg = `getTa(): N° iterations > ${k.ITER_MAX}`;
+			//	throw new RangeError(err_msg);
+			//}
 		}
 		return Tmed;
 	}
 
-	get altitude() {
-		return this._altitude; /// <reference path="./constants.ts"/>
+	//--------------------------------------------------------------------------------------------------
+	// Read-only properties
+
+	get conductor() {return this._conductor;}
+
+	get diameter() {return this._diameter;}
+
+	get r25() {return this._r25;}
+
+	get alpha() {return this._alpha;}
+
+	//--------------------------------------------------------------------------------------------------
+	// Read-write properties
+
+	get altitude() {return this._altitude;}
+	set altitude(v) {
+		if (v < 0) {throw new RangeError("altitude < 0");}
+		this._altitude = v;
 	}
-	set altitude(value) {
-		check(value).ge(0);
-		this._altitude = value;
+
+	get airVelocity() {return this._airVelocity;}
+	set airVelocity(v) {
+		if (v < 0) {throw new RangeError("airVelocity < 0");}
+		this._airVelocity = v;
 	}
-	get airVelocity() {
-		return this._airVelocity;
+
+	get sunEffect() {return this._sunEffect;}
+	set sunEffect(v) {
+		if (v < 0) {throw new RangeError("sunEffect < 0");}
+		if (v > 1) {throw new RangeError("sunEffect > 1");}
+		this._sunEffect = v;
 	}
-	set airVelocity(value) {
-		check(value).ge(0);
-		this._airVelocity = value;
+
+	get emissivity() {return this._emissivity;}
+	set emissivity(v) {
+		if (v < 0) {throw new RangeError("emissivity < 0");}
+		if (v > 1) {throw new RangeError("emissivity > 1");}
+		this._emissivity = v;
 	}
-	get sunEffect() {
-		return this._sunEffect;
+
+	get formula() {return this._formula;}
+	set formula(v) {
+		if([CF_CLASSIC, CF_IEEE].indexOf(v) == -1) {throw new RangeError("formula <> CF_IEEE, CF_CLASSIC");}
+		this._formula = v;
 	}
-	set sunEffect(value) {
-		check(value).ge(0).le(1);
-		this._sunEffect = value;
-	}
-	get emissivity() {
-		return this._emissivity;
-	}
-	set emissivity(value) {
-		check(value).ge(0).le(1);
-		this._emissivity = value;
-	}
-	get formula() {
-		return this._formula;
-	}
-	set formula(value) {
-		check(value).isIn([k.CF_CLASSIC, k.CF_IEEE]);
-		this._formula = value;
-	}
-	get deltaTemp() {
-		return this._deltaTemp;
-	}
-	set deltaTemp(value) {
-		check(value).gt(0);
-		this._deltaTemp = value;
+
+	get deltaTemp() {return this._deltaTemp;}
+	set deltaTemp(v) {
+		if (v <= 0) {throw new RangeError("deltaTemp <= 0");}
+		this._deltaTemp = v;
 	}
 }

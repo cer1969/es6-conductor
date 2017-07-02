@@ -24,25 +24,17 @@ export class CategoryMaker {
 	}
 
 	get() {
-		return Category(this.name, this.modelas, this.coefexp, this.creep, this.alpha, this.idx);
+		return new Category(this.name, this.modelas, this.coefexp, this.creep, this.alpha, this.idx);
 	}
 }
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Container for Category characteristics
- * Represents a type of conductors with similar characteristics
- * 
- * @export
- * @class Category
- */
 export class Category {
 	/* Represents a category of conductors with similar characteristics
 	 */
 	constructor(name, modelas=0.0, coefexp=0.0, creep=0.0, alpha=0.0, idx=null) {
-		/* 
-		 * name    : Name of conductor category
+		/* name    : Name of conductor category
 		 * modelas : Modulus of elasticity [kg/mm2]
 		 * coefexp : Coefficient of Thermal Expansion [1/°C]
 		 * creep   : Creep [°C]
