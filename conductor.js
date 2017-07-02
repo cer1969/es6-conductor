@@ -22,7 +22,7 @@ export class ConductorMaker {
 	}
 
 	get() {
-		return Conductor(this.name, this.catmk.get(), this.diameter, this.area, this.weight, this.strength,
+		return new Conductor(this.name, this.catmk.get(), this.diameter, this.area, this.weight, this.strength,
 										 this.r25, this.hcap, this.idx);
 	}
 }
@@ -32,10 +32,9 @@ export class ConductorMaker {
 export class Conductor {
 	/* Container for conductor characteristics
 	 */
-	
-	constructor(name, category, diameter, area, weight, strength, r25, hcap, idx="") {
-		/* 
-		 * name     : Name of conductor
+	constructor(name, category, diameter=0.0, area=0.0, weight=0.0, strength=0.0, r25=0.0, hcap=0.0,
+							idx=null) {
+		/* name     : Name of conductor
 		 * category : Category instance
 		 * diameter : Diameter [mm]
 		 * area     : Cross section area [mm2]

@@ -1,4 +1,6 @@
 // CRISTIAN ECHEVERRÍA RABÍ
+// javascript es6
+
 //--------------------------------------------------------------------------------------------------
 /*
 Define constants for es6.conductor

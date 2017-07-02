@@ -4,7 +4,5 @@
 export * from "./category";
 export * from "./conductor";
 export * from "./constants";
-
-export * from "./checker";
 export * from "./currentcalc";
 export * from "./operatingtable";

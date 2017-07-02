@@ -1,19 +1,25 @@
 // CRISTIAN ECHEVERRÍA RABÍ
-import { check } from "./checker";
-import * as k from "./constants";
+// javascript es6
+
+import {TC_MIN, TC_MAX} from "./constants";
+
 //--------------------------------------------------------------------------------------------------
 export class OperatingItem {
-	constructor(currentcalc, tempMaxOp = 50.0, nsc = 1, altitude = 300.0, emissivity = 0.5) {
-		/*
-		currentcalc : CurrentCalc instance
-		tempMaxOp   : Maximum operating temperature for currentcalc.conductor [°C]
-		nsc         : Number of subconductor per face
-		altitude    : Altitude [m] = 300.0
-		emissivity  : Emissivity (0 to 1) = 0.5
+	/* Container for conductor and operating conditions
+		*
+		* Read-only properties
+		* currentcalc : CurrentCalc instance
+		* tempMaxOp   : Maximux operating temperature for currentcalc.conductor [°C]
+		* nsc         : Number of subconductor per fase
 		*/
+	constructor(currentcalc, tempMaxOp = 50.0, nsc = 1, altitude = 300.0, emissivity = 0.5) {
+		/* currentcalc : CurrentCalc instance
+		 * tempMaxOp   : Maximux operating temperature for currentcalc.conductor [°C]
+		 * nsc         : Number of subconductor per fase
+		 */
 		currentcalc.altitude = altitude;
 		currentcalc.emissivity = emissivity;
-		check(tempMaxOp).ge(k.TC_MIN).le(k.TC_MAX);
+		check(tempMaxOp).ge(TC_MIN).le(TC_MAX);
 		check(nsc).ge(1);
 		this._currentcalc = currentcalc;
 		this._tempMaxOp = tempMaxOp;
