@@ -1,34 +1,34 @@
 // CRISTIAN ECHEVERRÍA RABÍ
 
-import { check } from "./checker";
-import * as k from "./constants";
+//import { check } from "./checker";
+import {CF_CLASSIC, CF_IEEE, TA_MIN, TA_MAX, TC_MIN, TC_MAX} from "./constants"
+//import * as k from "./constants";
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Object to calculate conductor current and temperatures.
- * 
- * @export
- * @class CurrentCalc
- */
 export class CurrentCalc {
-	
-	/**
-	 * CurrentCalc constructor.
+	/* Object to calculate conductor current and temperatures.
+	 *
+	 * Read-only properties
+	 * conductor  : Conductor instance
+	 * diameter   : Diameter [mm] from conductor
+	 * r25        : Resistance at 25°C [Ohm/km] from conductor
+	 * alpha      : Temperature coefficient of resistance [1/°C] from conductor
 	 * 
-	 * @param {Conductor} conductor  Conductor instance.
-	 * 
-	 * Valid values are required for r25, diameter and category.alpha. This parameters are copied
-	 * to CurrentCalc and cannot be changed. 
-	 * Subsequent changes in the Conductor will not be reflected in this object.
-	 * 
-	 * @throws {RangeError} if not (conductor.r25 > 0)
-	 * @throws {RangeError} if not (conductor.diameter > 0)
-	 * @throws {RangeError} if not (0 < conductor.category.alpha < 1)
-	 * 
-	 * @memberOf CurrentCalc
+	 * Read-write properties
+	 * altitude    : Altitude [m] = 300.0
+	 * airVelocity : Velocity of air stream [ft/seg] = 2.0
+	 * sunEffect   : Sun effect factor (0 to 1) = 1.0
+	 * emissivity  : Emissivity (0 to 1) = 0.5
+	 * formula     : Define formula for current calculation = CF_IEEE
+	 * deltaTemp   : Temperature difference to determine equality [°C] = 0.01
 	 */
+
 	constructor(conductor) {
+		/* 
+		 * conductor : Conductor instance.
+		 * Valid values are required for r25, diameter and category.alpha
+		 */
 		check(conductor.r25).gt(0);
 		check(conductor.diameter).gt(0);
 		check(conductor.category.alpha).gt(0).lt(1);

@@ -1,11 +1,11 @@
 // CRISTIAN ECHEVERRÍA RABÍ
 //--------------------------------------------------------------------------------------------------
 /*
-Define constants for js.conductor
+Define constants for es6.conductor
 
 Formula to use in CurrentCalc for current calculations
-CF_CLASSIC = "CLASSIC"	Identifies CLASSIC formula
-CF_IEEE    = "IEEE"	  Identifies IEEE formula
+CF_IEEE    = 0  Identifies IEEE formula
+CF_CLASSIC = 1  Identifies CLASSIC formula
 
 Ambient temperature in °C
 TA_MIN = -90  Minimum value for ambient temperature
@@ -24,16 +24,21 @@ ITER_MAX = 20000  Maximum iterations number = 20000
 Conductor tension [kg]
 TENSION_MAX = 50000  Maximum conductor tension
 */
+
 // Current calculus formulas
-export const CF_CLASSIC = "CLASSIC";
-export const CF_IEEE = "IEEE";
+export const CF_IEEE = 0;
+export const CF_CLASSIC = 1;
+
 // Ambient temperature
 export const TA_MIN = -90.0;
 export const TA_MAX = 90.0;
+
 // Conductor temperature
 export const TC_MIN = -90.0;
 export const TC_MAX = 2000.0;
+
 // Iterations
 export const ITER_MAX = 20000;
+
 // Conductor tension
 export const TENSION_MAX = 50000;
