@@ -10,9 +10,6 @@ export class CurrentCalc {
 	 *
 	 * Read-only properties
 	 * conductor  : Conductor instance
-	 * diameter   : Diameter [mm] from conductor
-	 * r25        : Resistance at 25°C [Ohm/km] from conductor
-	 * alpha      : Temperature coefficient of resistance [1/°C] from conductor
 	 * 
 	 * Read-write properties
 	 * altitude    : Altitude [m] = 300.0
@@ -32,6 +29,8 @@ export class CurrentCalc {
 		if (conductor._category._alpha >= 1) {throw new RangeError("category.alpha >= 1");}
 
 		this._conductor = conductor;
+
+		// Para acelerar cálculos
 		this._diameter = conductor._diameter;
 		this._r25 = conductor._r25;
 		this._alpha = conductor._category._alpha;
@@ -178,12 +177,6 @@ export class CurrentCalc {
 	// Read-only properties
 
 	get conductor() {return this._conductor;}
-
-	get diameter() {return this._diameter;}
-
-	get r25() {return this._r25;}
-
-	get alpha() {return this._alpha;}
 
 	//--------------------------------------------------------------------------------------------------
 	// Read-write properties
