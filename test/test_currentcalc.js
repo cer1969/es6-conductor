@@ -8,7 +8,7 @@ const assert = require('assert');
 describe('cx.CurrentCalc', function() {
 
 	//var cat, cond, cc;
-	var condmk, cc;
+	let condmk, cc;
 
 	beforeEach(function() {
 		let catmk = new cx.CategoryMaker('AAAC (AASC)', 0.0, 0.0, 0.0, 0.003400);
