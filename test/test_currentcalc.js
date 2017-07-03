@@ -72,9 +72,6 @@ describe('cx.CurrentCalc', function() {
 		});
 		it('Read only', function () {
 			assert.throws(function() {cc.conductor = 1}, TypeError);
-			assert.throws(function() {cc.diameter = 1}, TypeError);
-			assert.throws(function() {cc.r25 = 1}, TypeError);
-			assert.throws(function() {cc.alpha = 1}, TypeError);
 		});
 		it('altitude >= 0', function () {
 			cc.altitude = 150;
