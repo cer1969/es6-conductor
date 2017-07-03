@@ -4,80 +4,79 @@
 import {TC_MIN, TC_MAX} from "./constants";
 
 //--------------------------------------------------------------------------------------------------
+
 export class OperatingItem {
 	/* Container for conductor and operating conditions
-		*
-		* Read-only properties
-		* currentcalc : CurrentCalc instance
-		* tempMaxOp   : Maximux operating temperature for currentcalc.conductor [°C]
-		* nsc         : Number of subconductor per fase
-		*/
-	constructor(currentcalc, tempMaxOp = 50.0, nsc = 1, altitude = 300.0, emissivity = 0.5) {
+	 *
+	 * Read-only properties
+	 * currentcalc : CurrentCalc instance
+	 * tempMaxOp   : Maximux operating temperature for currentcalc.conductor [°C]
+	 * nsc         : Number of subconductor per fase
+	 */
+	constructor(currentcalc, tempMaxOp=50.0, nsc=1) {
 		/* currentcalc : CurrentCalc instance
 		 * tempMaxOp   : Maximux operating temperature for currentcalc.conductor [°C]
 		 * nsc         : Number of subconductor per fase
 		 */
-		currentcalc.altitude = altitude;
-		currentcalc.emissivity = emissivity;
-		check(tempMaxOp).ge(TC_MIN).le(TC_MAX);
-		check(nsc).ge(1);
+		if (tempMaxOp < TC_MIN) {throw new RangeError("tempMaxOp < TC_MIN");}
+		if (tempMaxOp > TC_MAX) {throw new RangeError("tempMaxOp > TC_MAX");}
+		if (nsc < 1) {throw new RangeError("nsc < 1");}
+
 		this._currentcalc = currentcalc;
 		this._tempMaxOp = tempMaxOp;
 		this._nsc = nsc;
 	}
+
+	//--------------------------------------------------------------------------------------------------
 	// Public methods
+
 	getCurrent(ta) {
-		/*
-		Returns current for the OperatingItems [ampere]
-		ta : Ambient temperature [°C]
-		*/
+		/* Returns current for the OperatingItems [ampere]
+		 * ta : Ambient temperature [°C]
+		 */
 		return this._currentcalc.getCurrent(ta, this._tempMaxOp) * this._nsc;
 	}
-	getCurrentList(taList) {
-		/*
-		Returns list with current [ampere]
-		taList: Secuence with ambient temperatures [°C]
-		*/
-		return taList.map(x => this.getCurrent(x));
-	}
-	// Propiedades
-	get currentcalc() {
-		return this._currentcalc;
-	}
-	set currentcalc(value) {
-		throw new RangeError('OperatingItem.CurrentCalc is readonly');
-	}
-	get tempMaxOp() {
-		return this._tempMaxOp;
-	}
-	set tempMaxOp(value) {
-		throw new RangeError('OperatingItem.tempMaxOp is readonly');
-	}
-	get nsc() {
-		return this._nsc;
-	}
-	set nsc(value) {
-		throw new RangeError('OperatingItem.nsc is readonly');
-	}
-}
-export class OperatingTable {
-	/*
-	Mutable secuence to store OperatingItem instances and calculates current.
 
-	Constructor (Read-write properties)
-	items : Secuence with OperatingItem instance
-	idx   : Database key
-	*/
-	constructor(items = [], idx) {
-		this.items = items;
-		this.idx = idx;
+	//------------------------------------------------------------------------------------------------
+	// Read-only properties
+
+	get currentcalc() {return this._currentcalc;}
+
+	get tempMaxOp() {return this._tempMaxOp;}
+
+	get nsc() {return this._nsc;}
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+export class OperatingTable {
+	/* Object to store OperatingItem instances and calculates current.
+	 * 
+	 * Read-only properties
+	 * idx : Optional database key
+	 * items: List of OperatingItem instances
+	 */
+	constructor(idx=null) {
+		/* idx   : Database key
+		 */
+		this._items = [];
+		this._idx = idx;
 	}
+
 	getCurrent(ta) {
-		/*
-		Returns lowest current for the OperatingItems contained [ampere]
-		ta : Ambient temperature [°C]
-		*/
+		/* Returns lowest current for the OperatingItems contained [ampere]
+		 * ta : Ambient temperature [°C]
+		 */
 		let ampList = this.items.map(item => item.getCurrent(ta));
 		return Math.min(...ampList);
 	}
+
+	//------------------------------------------------------------------------------------------------
+	// Read-only properties
+
+	get items() {return this._items;}
+
+	get idx() {return this._idx;}
+
 }
